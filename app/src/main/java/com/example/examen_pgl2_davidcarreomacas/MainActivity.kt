@@ -46,6 +46,7 @@ import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.examen_pgl2_davidcarreomacas.ui.theme.Examen_PGL2_DavidCarreñoMacíasTheme
+import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -54,10 +55,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         //Variable para nombre del alumno
         val nombre = "David"
-        // Variable para avatar
-        val avatar = "avatar3.png"
-
-
 
         setContent {
             Examen_PGL2_DavidCarreñoMacíasTheme {
@@ -78,8 +75,6 @@ class MainActivity : ComponentActivity() {
                             Row {
                                 Ficha(nombre = nombre)
                             }
-                            MainButton(text = "Elegir nuevo color") {
-                            }
                             Conversacion(msg = Mensajes.conversationSample)
                         }
                     }
@@ -90,7 +85,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MensajeCompleto(msg: Message){
+fun MensajeCompleto(msg: Message, color: Color){
     Row (modifier = Modifier.padding(all= 8.dp)){
         Image(
             painter = painterResource(id = R.drawable.profesor),
@@ -105,7 +100,7 @@ fun MensajeCompleto(msg: Message){
         var isExpanded by remember { mutableStateOf(false) }
         //variable para cambiar de color el mensaje según su estado
         val surfaceColor by animateColorAsState(
-            if (isExpanded) Color.Magenta else Color.LightGray
+            if (isExpanded) color else Color.LightGray
         )
         Column (modifier = Modifier.clickable { isExpanded = !isExpanded }) {
             Text(
@@ -168,18 +163,14 @@ fun Ficha(nombre: String){
 @Composable
 fun MainButton(
     text: String,
+    color: Color,
     onClick: () -> Unit
 ) {
-    var colorBoton by remember { mutableStateOf(Color.Magenta)}
-
-    val listaColores= listOf(Color.Green, Color.Blue, Color.Red, Color.Cyan)
-
-
     OutlinedButton(
         onClick = onClick,
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = MaterialTheme.colorScheme.primary,
-            containerColor = colorBoton
+            containerColor = color
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -188,10 +179,6 @@ fun MainButton(
         Text(text = text)
     }
 }
-fun generarColor(lista: List<Color>): List<Color> {
-    return lista.shuffled().take(1)
-}
-
 @Composable
 fun EspacioHorizontal(alto: Int){
     Spacer(modifier = Modifier.height(alto.dp))
@@ -199,9 +186,19 @@ fun EspacioHorizontal(alto: Int){
 
 @Composable
 fun Conversacion(msg: List<Message>){
+    var color by remember { mutableStateOf(Color.Magenta) }
+
+    val listaColores = listOf(Color.Green, Color.Blue, Color.Red, Color.Cyan)
+    MainButton(text = "Elegir nuevo color", color = color,onClick = {
+        var indiceRandom = Random.nextInt(0,4)
+        color = listaColores[indiceRandom]
+    })
+
+
+
     LazyColumn {
         items(msg){ message ->
-            MensajeCompleto(msg = message)
+            MensajeCompleto(msg = message, color = color)
         }
     }
 }
